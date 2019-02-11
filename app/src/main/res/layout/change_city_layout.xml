@@ -49,14 +49,13 @@
         android:layout_marginBottom="8dp"
         android:background="@android:color/white"
         android:ems="10"
+        android:hint="@string/default_query"
         android:inputType="textAutoCorrect"
-        android:text="@string/default_query"
         android:textColor="@android:color/black"
         android:textSize="30sp"
-        app:layout_constraintVertical_bias="0.3"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txtGetWeather"
-         />
+        app:layout_constraintVertical_bias="0.3" />
 </android.support.constraint.ConstraintLayout>

@@ -92,15 +92,25 @@
 
     <TextView
         android:id="@+id/txtLongitude"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:contentDescription="@string/longitude_value"
+        android:text="@string/longitude"
+        android:textColor="@android:color/white"
+        android:textSize="24sp"
+        tools:layout_editor_absoluteX="8dp"
+        tools:layout_editor_absoluteY="48dp" />
+
+    <TextView
+        android:id="@+id/textCity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
-        android:text="@string/longitude"
+        android:layout_marginTop="24dp"
+        android:text="GetCity"
         android:textColor="@android:color/white"
         android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtLatitude" />
+        app:layout_constraintTop_toBottomOf="@+id/txtLongitude" />
 </android.support.constraint.ConstraintLayout>

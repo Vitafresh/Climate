@@ -34,6 +34,7 @@ public class WeatherController extends AppCompatActivity {
     private ImageView imgWeatherSymbol;
     private TextView txtLocation;
     private TextView textCity;
+    private TextView txtWeatherCondition;
 
 
     //TODO: Declare LocationManager and LocationListener
@@ -47,6 +48,9 @@ public class WeatherController extends AppCompatActivity {
         txtTemp = (TextView)findViewById(R.id.txtTemp);
         txtTemp.setText("111°");
         textCity=findViewById(R.id.textCity);
+        txtLocation = findViewById(R.id.txtLocation);
+        txtWeatherCondition = findViewById(R.id.txtWeatherCondition);
+        imgWeatherSymbol = findViewById(R.id.imgWeatherSymbol);
 
         btnCityChange = (ImageButton)findViewById(R.id.btnCityChange);
         btnCityChange.setOnClickListener(new View.OnClickListener() {
@@ -88,8 +92,9 @@ public class WeatherController extends AppCompatActivity {
         params.add("lon","longitude");
         params.add("units",MEASURE_UNITS);
 
-        Log.d("Clima","params: " + params.toString());
-        //JSONObject jsonWeather = getJsonWeatherByApi(params);
+        JSONObject jsonWeather = getJsonWeatherByApi(params);
+        WeatherDataModel weatherData = WeatherDataModel.getFromJson(jsonWeather);
+        updateUI(weatherData);
 
     }
 
@@ -101,6 +106,8 @@ public class WeatherController extends AppCompatActivity {
         params.add("units",MEASURE_UNITS);
 
         JSONObject jsonWeather = getJsonWeatherByApi(params);
+        WeatherDataModel weatherData = WeatherDataModel.getFromJson(jsonWeather);
+        updateUI(weatherData);
     }
 
     //TODO: Do API call to website (using prepared RequestParams)
@@ -160,6 +167,20 @@ public class WeatherController extends AppCompatActivity {
     }
 
     //TODO: Add UpdateUI (set data for views)
+    private void updateUI(WeatherDataModel weatherObject){
+        Log.d("Climate",weatherObject.getTemperature().toString() + "°");
+        Log.d("Climate",weatherObject.getCity());
+        Log.d("Climate",weatherObject.getWeatherCondition());
+
+        txtTemp.setText(weatherObject.getTemperature().toString() + "°");
+        txtLocation.setText(weatherObject.getCity().toString());
+        txtWeatherCondition.setText(weatherObject.getWeatherCondition());
+
+        int resourceID = getResources().getIdentifier(weatherObject.getIconName(),"drawable",getPackageName());
+        Log.d("Climate",Integer.toString(resourceID));
+        imgWeatherSymbol.setImageResource(resourceID);
+
+    }
 
     //TODO: Add onPause()
 

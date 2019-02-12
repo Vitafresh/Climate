@@ -11,6 +11,10 @@ import android.widget.TextView;
 
 import com.loopj.android.http.RequestParams;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class WeatherController extends AppCompatActivity {
     //TODO: Declare constants
 
@@ -53,9 +57,6 @@ public class WeatherController extends AppCompatActivity {
                 startActivity(myIntent);
             }
         });
-
-
-
     }
 
     //TODO: Add onResume()
@@ -87,8 +88,8 @@ public class WeatherController extends AppCompatActivity {
         params.add("lon","longitude");
         params.add("units",MEASURE_UNITS);
 
-
-        getJsonWeatherByApi(params);
+        Log.d("Clima","params: " + params.toString());
+        //JSONObject jsonWeather = getJsonWeatherByApi(params);
 
     }
 
@@ -98,12 +99,64 @@ public class WeatherController extends AppCompatActivity {
         params.add("appid",APP_ID);
         params.add("q",city);
         params.add("units",MEASURE_UNITS);
-        getJsonWeatherByApi(params);
+
+        JSONObject jsonWeather = getJsonWeatherByApi(params);
     }
 
     //TODO: Do API call to website (using prepared RequestParams)
-    private void getJsonWeatherByApi(RequestParams params){
+    private JSONObject getJsonWeatherByApi(RequestParams params){
         Log.d("Climate","params: " + params.toString());
+        JSONObject jsonObject = new JSONObject();
+
+        // Stub (заглушка) to get test JSON Object
+        jsonObject = getTestJsonData();
+        return jsonObject;
+    }
+
+    private JSONObject getTestJsonData(){
+        // Stub (заглушка) to get test JSON Object
+        /*
+        Real answers for Kherson from http://api.openweathermap.org/data/2.5/weather
+        Rain:
+        {"coord":{"lon":32.61,"lat":46.64},"weather":[{"id":520,"main":"Rain","description":"light intensity shower rain","icon":"09d"}],"base":"stations",
+        "main":{"temp":7,"pressure":1007,"humidity":81,"temp_min":7,"temp_max":7},"visibility":10000,"wind":{"speed":6,"deg":160},"clouds":{"all":75},
+        "dt":1549958400,"sys":{"type":1,"id":8913,"message":0.0034,"country":"UA","sunrise":1549947501,"sunset":1549984192},"id":706448,"name":"Kherson","cod":200}
+        Clouds:
+        {"coord":{"lon":32.61,"lat":46.64},"weather":[{"id":803,"main":"Clouds","description":"broken clouds","icon":"04d"}],"base":"stations","main":{"temp":7,"pressure":1007,"humidity":75,"temp_min":7,"temp_max":7},"visibility":10000,"wind":{"speed":5,"deg":160},"clouds":{"all":75},"dt":1549956600,"sys":{"type":1,"id":8913,"message":0.0036,"country":"UA","sunrise":1549947501,"sunset":1549984191},"id":706448,"name":"Kherson","cod":200}
+        */
+
+        // {"weather":[{"id":520,"main":"Rain"}],"main":{"temp":7},"name":"Kherson"}
+        JSONObject jsonObject = new JSONObject();
+
+        JSONArray jsonArray = new JSONArray();
+        JSONObject item = new JSONObject();
+        try {
+            item.put("id",520);
+            item.put("main","Rain");
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        jsonArray.put(item);    // {"id":520,"main":"Rain"}
+
+        item = new JSONObject();
+        try {
+            item.put("temp",7);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            jsonObject.put("weather",jsonArray);    // "weather":[{"id":520,"main":"Rain"}]
+            jsonObject.put("name","Kherson"); // "name":"Kherson"
+            jsonObject.put("main",item);            // "main":{"temp":7}
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        Log.d("Clima","getTestJsonData: " + jsonObject.toString());
+        return jsonObject;
     }
 
     //TODO: Add UpdateUI (set data for views)

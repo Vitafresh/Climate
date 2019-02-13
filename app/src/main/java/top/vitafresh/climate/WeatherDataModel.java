@@ -10,6 +10,8 @@ public class WeatherDataModel {
     private String mTemperature;
     private String mWeatherCondition;
     private String mIconName;
+    private String mLatitude;
+    private String mLongitude;
 
 
     public static WeatherDataModel getFromJson(JSONObject json){
@@ -22,6 +24,9 @@ public class WeatherDataModel {
             weatherObject.mWeatherCondition = json.getJSONArray("weather").getJSONObject(0).getString("main").toString();
             int conditionID = json.getJSONArray("weather").getJSONObject(0).getInt("id");
             weatherObject.mIconName=getWeatherIconName(conditionID);
+
+            weatherObject.mLatitude = Double.toString(json.getJSONObject("coord").getDouble("lat"));
+            weatherObject.mLongitude = Double.toString(json.getJSONObject("coord").getDouble("lon"));
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -81,4 +86,13 @@ public class WeatherDataModel {
     public String getIconName() {
         return mIconName;
     }
+
+    public String getLatitude() {
+        return mLatitude;
+    }
+
+    public String getLongitude() {
+        return mLongitude;
+    }
+
 }

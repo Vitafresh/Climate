@@ -54,7 +54,7 @@ public class WeatherController extends AppCompatActivity {
         setContentView(R.layout.weather_controller_layout);
 
         txtTemp = (TextView)findViewById(R.id.txtTemp);
-        txtTemp.setText("111°");
+        txtTemp.setText("?°");
         textCity=findViewById(R.id.textCity);
         txtLocation = findViewById(R.id.txtLocation);
         txtWeatherCondition = findViewById(R.id.txtWeatherCondition);
@@ -87,7 +87,7 @@ public class WeatherController extends AppCompatActivity {
             getWeatherForCity(mCity);
         }
         else{
-            textCity.setText("Undefined");
+            textCity.setText("");
             getWeatherByLocation();
         }
     }
@@ -124,7 +124,7 @@ public class WeatherController extends AppCompatActivity {
 //        updateUI(weatherData);
     }
 
-    //TODO: Do API call to website (using prepared RequestParams)
+    //TODO: Do API call to website (using prepared RequestParams). Create class object for that.
     private void getWeatherClient(RequestParams params){
         Log.d("Climate","params: " + params.toString());
 
@@ -144,6 +144,7 @@ public class WeatherController extends AppCompatActivity {
                Toast.makeText(WeatherController.this,"Weather updated", Toast.LENGTH_SHORT);
            }
 
+           @Override
            public void onFailure(int statusCode, Header[] headers, Throwable e, JSONObject response){
                // called when response HTTP status is "4XX" (eg. 401, 403, 404)
                Log.d("Climate","getJsonWeatherByApi client.get OnFailure");
@@ -219,6 +220,9 @@ public class WeatherController extends AppCompatActivity {
         int resourceID = getResources().getIdentifier(weatherObject.getIconName(),"drawable",getPackageName());
         Log.d("Climate",Integer.toString(resourceID));
         imgWeatherSymbol.setImageResource(resourceID);
+
+        txtLatitude.setText("Lat: " + weatherObject.getLatitude());
+        txtLongitude.setText("Lon: " + weatherObject.getLongitude());
 
     }
 

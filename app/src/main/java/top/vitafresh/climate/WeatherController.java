@@ -8,12 +8,18 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import cz.msebera.android.httpclient.Header;
 
 public class WeatherController extends AppCompatActivity {
     //TODO: Declare constants
@@ -35,6 +41,8 @@ public class WeatherController extends AppCompatActivity {
     private TextView txtLocation;
     private TextView textCity;
     private TextView txtWeatherCondition;
+    private TextView txtLatitude;
+    private TextView txtLongitude;
 
 
     //TODO: Declare LocationManager and LocationListener
@@ -51,6 +59,8 @@ public class WeatherController extends AppCompatActivity {
         txtLocation = findViewById(R.id.txtLocation);
         txtWeatherCondition = findViewById(R.id.txtWeatherCondition);
         imgWeatherSymbol = findViewById(R.id.imgWeatherSymbol);
+        txtLatitude = findViewById(R.id.txtLatitude);
+        txtLongitude = findViewById(R.id.txtLongitude);
 
         btnCityChange = (ImageButton)findViewById(R.id.btnCityChange);
         btnCityChange.setOnClickListener(new View.OnClickListener() {
@@ -88,13 +98,15 @@ public class WeatherController extends AppCompatActivity {
     private void getWeatherByLocation(){
         RequestParams params=new RequestParams();
         params.add("appid",APP_ID);
-        params.add("lat","latitude");
-        params.add("lon","longitude");
+        params.add("lat","46.64");
+        params.add("lon","32.61");
         params.add("units",MEASURE_UNITS);
 
-        JSONObject jsonWeather = getJsonWeatherByApi(params);
-        WeatherDataModel weatherData = WeatherDataModel.getFromJson(jsonWeather);
-        updateUI(weatherData);
+        getWeatherClient(params);
+
+//        JSONObject jsonWeather = getJsonWeatherByApi(params);
+//        WeatherDataModel weatherData = WeatherDataModel.getFromJson(jsonWeather);
+//        updateUI(weatherData);
 
     }
 
@@ -105,20 +117,48 @@ public class WeatherController extends AppCompatActivity {
         params.add("q",city);
         params.add("units",MEASURE_UNITS);
 
-        JSONObject jsonWeather = getJsonWeatherByApi(params);
-        WeatherDataModel weatherData = WeatherDataModel.getFromJson(jsonWeather);
-        updateUI(weatherData);
+        getWeatherClient(params);
+
+//        JSONObject jsonWeather = getJsonWeatherByApi(params);
+//        WeatherDataModel weatherData = WeatherDataModel.getFromJson(jsonWeather);
+//        updateUI(weatherData);
     }
 
     //TODO: Do API call to website (using prepared RequestParams)
-    private JSONObject getJsonWeatherByApi(RequestParams params){
+    private void getWeatherClient(RequestParams params){
         Log.d("Climate","params: " + params.toString());
-        JSONObject jsonObject = new JSONObject();
 
-        // Stub (заглушка) to get test JSON Object
-        jsonObject = getTestJsonData();
-        return jsonObject;
-    }
+        //Usage example - https://github.com/codepath/android_guides/wiki/Using-Android-Async-Http-Client
+        AsyncHttpClient clientHTTP = new AsyncHttpClient();
+        clientHTTP.get(URL_SITE, params, new JsonHttpResponseHandler(){
+           @Override
+           public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+               // called when response HTTP status is "200 OK"
+
+               Log.d("Climate", "getJsonWeatherByApi onSuccess");
+               Log.d("Climate","json: " + response.toString());
+
+               WeatherDataModel weatherData = WeatherDataModel.getFromJson(response);
+               updateUI(weatherData);
+
+               Toast.makeText(WeatherController.this,"Weather updated", Toast.LENGTH_SHORT);
+           }
+
+           public void onFailure(int statusCode, Header[] headers, Throwable e, JSONObject response){
+               // called when response HTTP status is "4XX" (eg. 401, 403, 404)
+               Log.d("Climate","getJsonWeatherByApi client.get OnFailure");
+               Log.d("Climate","Status code: " + statusCode);
+               Log.e("Climate", e.toString());
+
+               Toast.makeText(WeatherController.this,"Request failed", Toast.LENGTH_LONG);
+           }
+
+        });
+
+//         //Stub (заглушка) to get test JSON Object
+//        jsonObject = getTestJsonData();
+//        return jsonObject;
+    };
 
     private JSONObject getTestJsonData(){
         // Stub (заглушка) to get test JSON Object

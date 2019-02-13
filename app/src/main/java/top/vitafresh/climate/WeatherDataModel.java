@@ -1,5 +1,6 @@
 package top.vitafresh.climate;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class WeatherDataModel {
@@ -14,11 +15,23 @@ public class WeatherDataModel {
     public static WeatherDataModel getFromJson(JSONObject json){
         WeatherDataModel weatherObject = new WeatherDataModel();
 
+        try {
+            weatherObject.mCity = json.getString("name");
+            weatherObject.mTemperature = Long.toString(Math.round(json.getJSONObject("main").getDouble("temp")));
+
+            weatherObject.mWeatherCondition = json.getJSONArray("weather").getJSONObject(0).getString("main").toString();
+            int conditionID = json.getJSONArray("weather").getJSONObject(0).getInt("id");
+            weatherObject.mIconName=getWeatherIconName(conditionID);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         //Just for testing
-        weatherObject.mCity="Kharkiv";
-        weatherObject.mTemperature ="33";
-        weatherObject.mWeatherCondition="Snow";
-        weatherObject.mIconName=getWeatherIconName(501);
+//        weatherObject.mCity="Kharkiv";
+//        weatherObject.mTemperature ="33";
+//        weatherObject.mWeatherCondition="Snow";
+//        weatherObject.mIconName=getWeatherIconName(501);
 
         return weatherObject;
     }

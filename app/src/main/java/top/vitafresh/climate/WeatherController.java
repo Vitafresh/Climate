@@ -1,6 +1,14 @@
 package top.vitafresh.climate;
 
+import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,7 +19,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
@@ -25,7 +32,7 @@ public class WeatherController extends AppCompatActivity {
     //TODO: Declare constants
 
     //URL to retrieve weather data
-    private final String URL_SITE="http://api.openweathermap.org/data/2.5/weather";
+    private final String URL_SITE = "http://api.openweathermap.org/data/2.5/weather";
     // App ID to use OpenWeather data
     private final String APP_ID = "5e8752a808837d9b64aa7990b885a9f9";
     //Set metric units constatnt
@@ -46,6 +53,14 @@ public class WeatherController extends AppCompatActivity {
 
 
     //TODO: Declare LocationManager and LocationListener
+    LocationManager mLocationManager;
+    LocationListener mLocationListener;
+    final String LOCATION_PROVIDER = LocationManager.NETWORK_PROVIDER;
+    //    final String LOCATION_PROVIDER = LocationManager.GPS_PROVIDER;
+
+    final long MIN_TIME = 5000; // Time between location updates (5000 milliseconds or 5 seconds)
+    final long MIN_DISTANCE = 1000; // Distance between location updates (1000m or 1km)
+    final int REQUEST_CODE = 777;
 
 
     @Override
@@ -53,20 +68,20 @@ public class WeatherController extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.weather_controller_layout);
 
-        txtTemp = (TextView)findViewById(R.id.txtTemp);
+        txtTemp = (TextView) findViewById(R.id.txtTemp);
         txtTemp.setText("?°");
-        textCity=findViewById(R.id.textCity);
+        textCity = findViewById(R.id.textCity);
         txtLocation = findViewById(R.id.txtLocation);
         txtWeatherCondition = findViewById(R.id.txtWeatherCondition);
         imgWeatherSymbol = findViewById(R.id.imgWeatherSymbol);
         txtLatitude = findViewById(R.id.txtLatitude);
         txtLongitude = findViewById(R.id.txtLongitude);
 
-        btnCityChange = (ImageButton)findViewById(R.id.btnCityChange);
+        btnCityChange = (ImageButton) findViewById(R.id.btnCityChange);
         btnCityChange.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent myIntent = new Intent(WeatherController.this,ChangeCityController.class);
+                Intent myIntent = new Intent(WeatherController.this, ChangeCityController.class);
                 //Send focus to the Activity with City selection (CahngeCityController.class)
                 startActivity(myIntent);
             }
@@ -77,38 +92,118 @@ public class WeatherController extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d("Climate","onResume");
+        Log.d("Climate", "onResume");
 
         Intent myIntent = getIntent();
         //Get data from City selection Activity
         mCity = myIntent.getStringExtra("city");
-        if(mCity != null) {
+        if (mCity != null) {
             textCity.setText(mCity);
             getWeatherForCity(mCity);
-        }
-        else{
+        } else {
             textCity.setText("");
             getWeatherByLocation();
         }
     }
 
 
-
     //TODO: Add Weather for current location
-    private void getWeatherByLocation(){
-        RequestParams params=new RequestParams();
-        params.add("appid",APP_ID);
-        params.add("lat","46.64");
-        params.add("lon","32.61");
-        params.add("units",MEASURE_UNITS);
+    private void getWeatherByLocation() {
+        Log.d("Climate","getWeatherByLocation");
+//        getAccessPermissions();  //Get access permission for Location service
+        mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-        getWeatherClient(params);
+        mLocationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                Log.d("Climate", "getWeatherByLocation onLocationChanged");
+                String longitude = String.valueOf(location.getLongitude());
+                String latitude = String.valueOf(location.getLatitude());
+
+                RequestParams params = new RequestParams();
+                params.add("appid", APP_ID);
+                params.add("lat", latitude);
+                params.add("lon", longitude);
+                params.add("units", MEASURE_UNITS);
+
+                getWeatherClient(params);
+
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+
+            }
+
+        };
+
+        // This check automatically added by Android studio (red bulb on the left of mLocationManager.requestLocationUpdates())
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+
+//            String[] permissions = {};
+//            if(LOCATION_PROVIDER == LocationManager.NETWORK_PROVIDER) {
+//                //Quick network location
+//                permissions[0] = Manifest.permission.ACCESS_COARSE_LOCATION;
+//            }
+//            else
+//            {
+//                //Precise GPS Location
+//                permissions[0] = Manifest.permission.ACCESS_FINE_LOCATION;
+//            }
+
+            String[] permissions={Manifest.permission.ACCESS_COARSE_LOCATION};
+            ActivityCompat.requestPermissions(this, permissions, REQUEST_CODE);
+            return;
+        }
+        mLocationManager.requestLocationUpdates(LOCATION_PROVIDER, MIN_TIME, MIN_DISTANCE, mLocationListener);
+
+
+//        RequestParams params=new RequestParams();
+//        params.add("appid",APP_ID);
+//        params.add("lat","46.64");
+//        params.add("lon","32.61");
+//        params.add("units",MEASURE_UNITS);
+//
+//        getWeatherClient(params);
 
 //        JSONObject jsonWeather = getJsonWeatherByApi(params);
 //        WeatherDataModel weatherData = WeatherDataModel.getFromJson(jsonWeather);
 //        updateUI(weatherData);
 
     }
+
+    // Autogenerate method: Generate - Override Methods - onRequestPermissionResult
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(requestCode == REQUEST_CODE){
+            if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                Log.d("Climate", "onRequestPermissionResult(): Permission Granted");
+                getWeatherByLocation();
+            }
+            else{
+                Log.d("Climate", "onRequestPermissionResult(): Permission Denied");
+            }
+        }
+    }
+
 
     //TODO: Add Weather for the city
     private void getWeatherForCity(String city){

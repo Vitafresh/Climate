@@ -322,6 +322,13 @@ public class WeatherController extends AppCompatActivity {
     }
 
     //TODO: Add onPause()
+    @Override
+    protected void onPause(){
+        super.onPause();
+        if(mLocationManager != null){
+            mLocationManager.removeUpdates(mLocationListener);
+        }
+    }
 
     //TODO: Refresh Weather data by Swipe from top to bottom (show "Refresh" text or icon)
 }

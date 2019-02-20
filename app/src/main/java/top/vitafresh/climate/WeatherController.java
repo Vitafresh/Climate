@@ -246,7 +246,9 @@ public class WeatherController extends AppCompatActivity {
                Log.d("Climate","Status code: " + statusCode);
                Log.e("Climate", e.toString());
 
-               Toast.makeText(WeatherController.this,"Request failed", Toast.LENGTH_LONG);
+               Toast toast =  Toast.makeText(WeatherController.this,
+                       "Request failed. Code: " + statusCode, Toast.LENGTH_LONG);
+               toast.show();
            }
 
         });
